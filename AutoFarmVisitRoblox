@@ -1,0 +1,73 @@
+--// SAFE AUTO FARM (CLIENT ONLY)
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+
+local lp = Players.LocalPlayer
+local GAME_ID = 90746724868686
+
+local visits = 0
+local running = true
+local teleporting = false
+
+print("🚀 АВТОФАРМ ЗАПУЩЕН")
+
+local function waitChar()
+	if lp.Character and lp.Character:FindFirstChild("Humanoid") then
+		return lp.Character
+	end
+	return lp.CharacterAdded:Wait()
+end
+
+local function quickAct()
+	local char = waitChar()
+	local hum = char:FindFirstChild("Humanoid")
+	if not hum then return end
+
+	hum:Move(Vector3.new(1,0,0), false)
+	task.wait(0.05)
+	hum:Move(Vector3.new(-1,0,0), false)
+	task.wait(0.05)
+	hum.Jump = true
+end
+
+local function safeTeleport()
+	if teleporting then return end
+	teleporting = true
+
+	visits += 1
+	quickAct()
+
+	task.wait(0.3)
+	TeleportService:Teleport(GAME_ID, lp)
+end
+
+task.spawn(function()
+	task.wait(2)
+
+	while running and visits < 10000 do
+		waitChar()
+		safeTeleport()
+
+		task.wait(8) -- 🔒 анти-флуд
+
+		if visits % 5 == 0 then
+			print("⚡ ВИЗИТОВ:", visits)
+			print("🎯 JOB:", game.JobId)
+		end
+	end
+end)
+
+UIS.InputBegan:Connect(function(input, gp)
+	if gp then return end
+
+	if input.KeyCode == Enum.KeyCode.P then
+		running = false
+		print("🛑 ОСТАНОВЛЕНО")
+	elseif input.KeyCode == Enum.KeyCode.R then
+		visits = 0
+		print("🔄 СБРОС")
+	end
+end)
+
+print("✅ ГОТОВО (CLIENT SAFE)")
