@@ -1,4 +1,4 @@
---// SAFE AUTO FARM (CLIENT ONLY)
+--// ULTRA FAST SAFE AUTO FARM (CLIENT ONLY)
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
@@ -9,9 +9,11 @@ local GAME_ID = 90746724868686
 local visits = 0
 local running = true
 local teleporting = false
+local firstMoveDone = false
 
-print("🚀 АВТОФАРМ ЗАПУЩЕН")
+print("🚀 ULTRA FAST AUTO FARM ЗАПУЩЕН")
 
+-- Ждём персонажа
 local function waitChar()
 	if lp.Character and lp.Character:FindFirstChild("Humanoid") then
 		return lp.Character
@@ -19,7 +21,9 @@ local function waitChar()
 	return lp.CharacterAdded:Wait()
 end
 
-local function quickAct()
+-- Один раз прыгаем и двигаемся немного
+local function firstQuickMove()
+	if firstMoveDone then return end
 	local char = waitChar()
 	local hum = char:FindFirstChild("Humanoid")
 	if not hum then return end
@@ -29,35 +33,45 @@ local function quickAct()
 	hum:Move(Vector3.new(-1,0,0), false)
 	task.wait(0.05)
 	hum.Jump = true
+
+	firstMoveDone = true
 end
 
-local function safeTeleport()
+-- Быстрый телепорт
+local function ultraTeleport()
 	if teleporting then return end
 	teleporting = true
 
 	visits += 1
-	quickAct()
+	if not firstMoveDone then
+		firstQuickMove()
+	end
 
-	task.wait(0.3)
+	task.wait(0.05) -- минимальная пауза для безопасности
 	TeleportService:Teleport(GAME_ID, lp)
 end
 
+-- Основной цикл
 task.spawn(function()
-	task.wait(2)
+	task.wait(1)
 
 	while running and visits < 10000 do
 		waitChar()
-		safeTeleport()
+		ultraTeleport()
 
-		task.wait(8) -- 🔒 анти-флуд
-
+		-- Лог каждые 5 визитов
 		if visits % 5 == 0 then
 			print("⚡ ВИЗИТОВ:", visits)
 			print("🎯 JOB:", game.JobId)
 		end
+
+		-- Минимальная пауза, чтобы скрипт не крашнулся
+		task.wait(0.1)
+		teleporting = false
 	end
 end)
 
+-- Горячие клавиши
 UIS.InputBegan:Connect(function(input, gp)
 	if gp then return end
 
@@ -70,4 +84,4 @@ UIS.InputBegan:Connect(function(input, gp)
 	end
 end)
 
-print("✅ ГОТОВО (CLIENT SAFE)")
+print("✅ ГОТОВО (ULTRA FAST CLIENT SAFE)")
